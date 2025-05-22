@@ -143,7 +143,7 @@ private fun Example3() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Example4() {
-    var drawerState = rememberDrawerState(DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     Scaffold(
