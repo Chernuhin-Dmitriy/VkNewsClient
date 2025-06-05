@@ -1,27 +1,26 @@
 package com.example.vknewsclient.ui.theme
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldDefaults
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,28 +29,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.vknewsclient.R
+import androidx.lifecycle.ViewModel
+import com.example.vknewsclient.MainViewModel
+import com.example.vknewsclient.domain.FeedPost
 import kotlinx.coroutines.launch
 
-@Preview
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
-    val selectedItemPosition = remember { mutableStateOf(0) }
-    val items = listOf(
-        NavigationItem.Home,
-        NavigationItem.Favourite,
-        NavigationItem.Profile
-    )
-    val snackbarHostState = SnackbarHostState()
-    Log.d("MainScreen", snackbarHostState.currentSnackbarData.toString())
-    val scope = rememberCoroutineScope()
-    val fabIsVisible = remember { mutableStateOf(true) }
-
+fun MainScreen(viewModel : MainViewModel) {
     Scaffold(
+        modifier = Modifier
+            .systemBarsPadding(),
         bottomBar = {
             BottomNavigation(
                 backgroundColor = Color.DarkGray
             ) {
+                val selectedItemPosition = remember { mutableStateOf(0) }
+                val items = listOf(
+                    NavigationItem.Home,
+                    NavigationItem.Favourite,
+                    NavigationItem.Profile
+                )
+
                 items.forEachIndexed { index, item ->
                     BottomNavigationItem(
                         selected = selectedItemPosition.value == index,
@@ -68,31 +67,16 @@ fun MainScreen() {
                 }
             }
         },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        floatingActionButton = {
-            if(fabIsVisible.value){
-                FloatingActionButton(
-                    onClick = {
-                        scope.launch {
-                            val action = snackbarHostState.showSnackbar(
-                                message = "My first Snackbar",
-                                actionLabel = "Hide FAB",
-                                duration = SnackbarDuration.Short
-                            )
-                            if(action == SnackbarResult.ActionPerformed) {
-                                fabIsVisible.value = false
-                            }
-                        }
-                    }
-                ) {
-                    Icon(Icons.Filled.Favorite, contentDescription = null)
-                }
-            }
-        },
-    ) { paddingValues ->
-        Text(text = "Scaffold text", Modifier.padding(paddingValues))
+    ) {
+        val feedPost = viewModel.feedPost.observeAsState(FeedPost())
+        PostCard(
+            modifier = Modifier.padding(8.dp),
+            feedPost = feedPost.value,
+            onViewClickListener = viewModel::updateCount,
+            onShareClickListener = viewModel::updateCount,
+            onCommentClickListener = viewModel::updateCount,
+            onLikeClickListener = viewModel::updateCount
+        )
     }
 }
 
