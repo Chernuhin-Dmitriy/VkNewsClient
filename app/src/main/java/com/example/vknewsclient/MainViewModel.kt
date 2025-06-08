@@ -5,23 +5,37 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.vknewsclient.domain.FeedPost
 import com.example.vknewsclient.domain.StatisticItem
-import java.lang.IllegalStateException
 
 class MainViewModel : ViewModel() {
-    private val _feedPost = MutableLiveData(FeedPost())
-    val feedPost: LiveData<FeedPost> = _feedPost
+    private val initialList = mutableListOf<FeedPost>().apply {
+        repeat(3) {
+            add(
+                FeedPost(id = it)
+            )
+        }
+    }
 
-    fun updateCount(item: StatisticItem) {
-        val oldStatistics = feedPost.value?.statistics ?: throw IllegalStateException()
-        val newStatistics = oldStatistics.toMutableList().apply {
-            replaceAll { oldItem ->
-                if (oldItem.type == item.type) {
-                    oldItem.copy(count = oldItem.count + 1)
-                } else {
-                    oldItem
+    private val _models = MutableLiveData<List<FeedPost>>(initialList)
+    val models: LiveData<List<FeedPost>> = _models
+
+    fun updateCount(model: FeedPost, item: StatisticItem) {
+        val modifiedList = _models.value?.toMutableList() ?: mutableListOf()
+        modifiedList.replaceAll { post ->
+            if (post == model) {
+                val updateStatistic = post.statistics.toMutableList().apply {
+                    replaceAll { oldItem ->
+                        if (oldItem.type == item.type) {
+                            oldItem.copy(count = oldItem.count + 1)
+                        } else {
+                            oldItem
+                        }
+                    }
                 }
+                post.copy(statistics = updateStatistic)
+            } else {
+                post
             }
         }
-        _feedPost.value = feedPost.value?.copy(statistics = newStatistics)
+        _models.value = modifiedList
     }
 }

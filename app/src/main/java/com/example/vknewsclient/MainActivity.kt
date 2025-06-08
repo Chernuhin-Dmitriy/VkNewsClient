@@ -8,10 +8,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
@@ -35,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,7 +60,33 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             VkNewsClientTheme(dynamicColor = false) {
-                MainScreen(viewModel)
+                Test(viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Test(viewModel: MainViewModel) {
+    VkNewsClientTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            val models = viewModel.models.observeAsState(listOf())
+            LazyColumn {
+                items(
+                    items = models.value,
+                    key = { post -> post.id }
+                ) { model ->
+                    MainScreen(
+                        model = model,
+                        onStatisticItemClickListener = {post, item ->
+                            viewModel.updateCount(post, item)
+                        }
+                    )
+                }
             }
         }
     }

@@ -2,6 +2,8 @@ package com.example.vknewsclient.ui.theme
 
 import android.content.DialogInterface.OnClickListener
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,9 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,18 +46,28 @@ import com.example.vknewsclient.domain.StatisticType
 fun PostCard(
     modifier: Modifier = Modifier,
     feedPost: FeedPost,
-    onViewClickListener: (StatisticItem) -> Unit,
-    onShareClickListener: (StatisticItem) -> Unit,
-    onCommentClickListener: (StatisticItem) -> Unit,
-    onLikeClickListener: (StatisticItem) -> Unit
+    onViewClickListener: (FeedPost, StatisticItem) -> Unit,
+    onShareClickListener: (FeedPost, StatisticItem) -> Unit,
+    onCommentClickListener: (FeedPost, StatisticItem) -> Unit,
+    onLikeClickListener: (FeedPost, StatisticItem) -> Unit
 ) {
     Card(
         modifier = modifier // Сочетание с настройками из вне
-//            .fillMaxSize(),
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(8.dp),
+                clip = false
+            )
+            .border(
+                width = 0.5.dp,
+                color = Color.LightGray.copy(alpha = 0.8f),
+                shape = RoundedCornerShape(8.dp)
+            ),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(10.dp)
         ) {
             PostHeader(feedPost)
             Spacer(modifier = Modifier.height(8.dp))
@@ -68,6 +84,7 @@ fun PostCard(
             Spacer(modifier = Modifier.height(8.dp))
             Statistics(
                 statistics = feedPost.statistics,
+                model = feedPost,
                 onViewClickListener = onViewClickListener,
                 onShareClickListener = onShareClickListener,
                 onCommentClickListener = onCommentClickListener,
@@ -115,10 +132,11 @@ private fun PostHeader(
 @Composable
 private fun Statistics(
     statistics: List<StatisticItem>,
-    onViewClickListener: (StatisticItem) -> Unit,
-    onShareClickListener: (StatisticItem) -> Unit,
-    onCommentClickListener: (StatisticItem) -> Unit,
-    onLikeClickListener: (StatisticItem) -> Unit
+    model: FeedPost,
+    onViewClickListener: (FeedPost, StatisticItem) -> Unit,
+    onShareClickListener: (FeedPost, StatisticItem) -> Unit,
+    onCommentClickListener: (FeedPost, StatisticItem) -> Unit,
+    onLikeClickListener: (FeedPost, StatisticItem) -> Unit
 ) {
     Row {
         Row(
@@ -130,7 +148,7 @@ private fun Statistics(
                 image = (R.drawable.ic_eye2),
                 number = viewsItem.count.toString(),
                 onItemClickListener = {
-                    onViewClickListener(viewsItem)
+                    onViewClickListener(model, viewsItem)
                 }
             )
         }
@@ -147,7 +165,7 @@ private fun Statistics(
                 (R.drawable.share2),
                 sharesItem.count.toString(),
                 onItemClickListener = {
-                    onShareClickListener(sharesItem)
+                    onShareClickListener(model, sharesItem)
                 }
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -155,7 +173,7 @@ private fun Statistics(
                 R.drawable.comment2,
                 commentsItem.count.toString(),
                 onItemClickListener = {
-                    onCommentClickListener(commentsItem)
+                    onCommentClickListener(model, commentsItem)
                 }
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -163,7 +181,7 @@ private fun Statistics(
                 R.drawable.like2,
                 likesItem.count.toString(),
                 onItemClickListener = {
-                    onLikeClickListener(likesItem)
+                    onLikeClickListener(model, likesItem)
                 }
             )
         }

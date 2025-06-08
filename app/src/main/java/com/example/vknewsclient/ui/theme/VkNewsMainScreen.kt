@@ -2,8 +2,14 @@ package com.example.vknewsclient.ui.theme
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.BottomNavigation
@@ -32,13 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.example.vknewsclient.MainViewModel
 import com.example.vknewsclient.domain.FeedPost
+import com.example.vknewsclient.domain.StatisticItem
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainScreen(viewModel : MainViewModel) {
+fun MainScreen(
+    model: FeedPost,
+    onStatisticItemClickListener: (FeedPost, StatisticItem) -> Unit
+) {
     Scaffold(
         modifier = Modifier
+            .size(900.dp)
             .systemBarsPadding(),
         bottomBar = {
             BottomNavigation(
@@ -68,14 +79,23 @@ fun MainScreen(viewModel : MainViewModel) {
             }
         },
     ) {
-        val feedPost = viewModel.feedPost.observeAsState(FeedPost())
+//        val feedPost = viewModel.feedPost.observeAsState(FeedPost())
         PostCard(
-            modifier = Modifier.padding(8.dp),
-            feedPost = feedPost.value,
-            onViewClickListener = viewModel::updateCount,
-            onShareClickListener = viewModel::updateCount,
-            onCommentClickListener = viewModel::updateCount,
-            onLikeClickListener = viewModel::updateCount
+            modifier = Modifier
+                .padding(it),
+            feedPost = model,
+            onViewClickListener = { post, item ->
+                onStatisticItemClickListener(post, item)
+            },
+            onShareClickListener = { post, item ->
+                onStatisticItemClickListener(post, item)
+            },
+            onCommentClickListener = { post, item ->
+                onStatisticItemClickListener(post, item)
+            },
+            onLikeClickListener = { post, item ->
+                onStatisticItemClickListener(post, item)
+            }
         )
     }
 }
