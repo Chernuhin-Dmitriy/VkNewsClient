@@ -38,4 +38,11 @@ class MainViewModel : ViewModel() {
         }
         _models.value = modifiedList
     }
+
+    fun delete(model: FeedPost) {
+        val modifiedList = _models.value?.toMutableList() ?: mutableListOf()
+        modifiedList.remove(model)
+        _models.value = modifiedList
+    }
 }
+
