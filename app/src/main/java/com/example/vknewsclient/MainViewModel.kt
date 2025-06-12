@@ -15,13 +15,37 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private val _models = MutableLiveData<List<FeedPost>>(initialList)
-    val models: LiveData<List<FeedPost>> = _models
+    private val _feedPosts = MutableLiveData<List<FeedPost>>(initialList)
+    val feedPosts: LiveData<List<FeedPost>> = _feedPosts
 
-    fun updateCount(model: FeedPost, item: StatisticItem) {
-        val modifiedList = _models.value?.toMutableList() ?: mutableListOf()
+    fun updateCount(feedPost: FeedPost, item: StatisticItem) {
+        val oldPosts = _feedPosts.value?.toMutableList() ?: mutableListOf()
+        val oldStatistic = feedPost.statistics
+
+        val newStatistic = oldStatistic.toMutableList().apply{
+            replaceAll {oldItem ->
+                if(oldItem.type == item.type) {
+                    item.copy(count = oldItem.count + 1)
+                } else {
+                    oldItem
+                }
+            }
+        }
+        val newFeedPost = feedPost.copy(statistics = newStatistic)
+        _feedPosts.value = oldPosts.apply {
+            replaceAll {
+                if (it.id == newFeedPost.id) {
+                    newFeedPost
+                } else {
+                    it
+                }
+            }
+        }
+
+
+        val modifiedList = _feedPosts.value?.toMutableList() ?: mutableListOf()
         modifiedList.replaceAll { post ->
-            if (post == model) {
+            if (post == feedPost) {
                 val updateStatistic = post.statistics.toMutableList().apply {
                     replaceAll { oldItem ->
                         if (oldItem.type == item.type) {
@@ -36,13 +60,13 @@ class MainViewModel : ViewModel() {
                 post
             }
         }
-        _models.value = modifiedList
+        _feedPosts.value = modifiedList
     }
 
     fun delete(model: FeedPost) {
-        val modifiedList = _models.value?.toMutableList() ?: mutableListOf()
+        val modifiedList = _feedPosts.value?.toMutableList() ?: mutableListOf()
         modifiedList.remove(model)
-        _models.value = modifiedList
+        _feedPosts.value = modifiedList
     }
 }
 
