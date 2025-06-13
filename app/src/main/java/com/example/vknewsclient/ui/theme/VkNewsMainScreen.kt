@@ -156,7 +156,6 @@ fun MainScreen(
 private fun ScaffoldExample() {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
