@@ -11,8 +11,11 @@ composeBom = "2025.06.00"
 material = "1.4.3"
 lifecycle = "2.9.1"
 compose = "1.8.2"
+navigation-compose = "2.9.0"  # или актуальная версия
+
 
 [libraries]
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose"}
 compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "compose" }
 lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycle" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }

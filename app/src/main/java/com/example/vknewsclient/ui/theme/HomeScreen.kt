@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vknewsclient.MainViewModel
+import com.example.vknewsclient.domain.PostComment
 
 @Composable
 fun HomeScreen(
@@ -30,70 +31,83 @@ fun HomeScreen(
     paddingValues: PaddingValues
 ){
     val feedPosts = viewModel.feedPosts.observeAsState(listOf())
-    LazyColumn(
-        modifier = Modifier
-            .padding(paddingValues)
-            .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(
-            top = 16.dp,
-            start = 8.dp,
-            end = 8.dp,
-            bottom = 8.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(
-            items = feedPosts.value,
-            key = { post -> post.id }
-        ) { feedPost ->
-            val dismissState = rememberSwipeToDismissBoxState(
-                positionalThreshold = { distance: Float -> distance * 0.7f }
-            )
-            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                viewModel.delete(feedPost)
-            }
-            SwipeToDismissBox(
-                modifier = Modifier.animateItem(),
-                state = dismissState,
-                backgroundContent = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp)
-                            .align(Alignment.CenterVertically)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color.Red.copy(alpha = 0.5f)),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(8.dp),
-                            text = "Delete Item",
-                            fontSize = 24.sp,
-                            color = Color.White
-                        )
-                    }
-                },
-                enableDismissFromStartToEnd = false,
-                content = {
-                    PostCard(
-                        modifier = Modifier,
-//                        .padding(8.dp),
-                        feedPost = feedPost,
-                        onViewClickListener = { statisticItem ->
-                            viewModel.updateCount(feedPost, statisticItem)
-                        },
-                        onShareClickListener = { statisticItem ->
-                            viewModel.updateCount(feedPost, statisticItem)
-                        },
-                        onCommentClickListener = { statisticItem ->
-                            viewModel.updateCount(feedPost, statisticItem)
-                        },
-                        onLikeClickListener = { statisticItem ->
-                            viewModel.updateCount(feedPost, statisticItem)
-                        }
-                    )
-                }
+    val comments = mutableListOf<PostComment>().apply {
+        repeat(20){
+            this.add(
+                PostComment(
+                    id = it
+                )
             )
         }
     }
+    if(feedPosts.value.isNotEmpty()){
+        CommentsScreen(feedPosts.value.get(0), comments)
+    }
+
+//    LazyColumn(
+//        modifier = Modifier
+//            .padding(paddingValues)
+//            .background(MaterialTheme.colorScheme.background),
+//        contentPadding = PaddingValues(
+//            top = 16.dp,
+//            start = 8.dp,
+//            end = 8.dp,
+//            bottom = 8.dp
+//        ),
+//        verticalArrangement = Arrangement.spacedBy(8.dp)
+//    ) {
+//        items(
+//            items = feedPosts.value,
+//            key = { post -> post.id }
+//        ) { feedPost ->
+//            val dismissState = rememberSwipeToDismissBoxState(
+//                positionalThreshold = { distance: Float -> distance * 0.7f }
+//            )
+//            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+//                viewModel.delete(feedPost)
+//            }
+//            SwipeToDismissBox(
+//                modifier = Modifier.animateItem(),
+//                state = dismissState,
+//                backgroundContent = {
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(12.dp)
+//                            .align(Alignment.CenterVertically)
+//                            .clip(RoundedCornerShape(10.dp))
+//                            .background(Color.Red.copy(alpha = 0.5f)),
+//                        contentAlignment = Alignment.CenterEnd
+//                    ) {
+//                        Text(
+//                            modifier = Modifier.padding(8.dp),
+//                            text = "Delete Item",
+//                            fontSize = 24.sp,
+//                            color = Color.White
+//                        )
+//                    }
+//                },
+//                enableDismissFromStartToEnd = false,
+//                content = {
+//                    PostCard(
+//                        modifier = Modifier,
+////                        .padding(8.dp),
+//                        feedPost = feedPost,
+//                        onViewClickListener = { statisticItem ->
+//                            viewModel.updateCount(feedPost, statisticItem)
+//                        },
+//                        onShareClickListener = { statisticItem ->
+//                            viewModel.updateCount(feedPost, statisticItem)
+//                        },
+//                        onCommentClickListener = { statisticItem ->
+//                            viewModel.updateCount(feedPost, statisticItem)
+//                        },
+//                        onLikeClickListener = { statisticItem ->
+//                            viewModel.updateCount(feedPost, statisticItem)
+//                        }
+//                    )
+//                }
+//            )
+//        }
+//    }
 }

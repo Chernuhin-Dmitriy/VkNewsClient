@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.FloatingActionButton
@@ -18,26 +19,34 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.vknewsclient.MainViewModel
+import com.example.vknewsclient.domain.FeedPost
+import com.example.vknewsclient.navigation.AppNavGraph
+import com.example.vknewsclient.navigation.NavigationState
+import com.example.vknewsclient.navigation.Screen
+import com.example.vknewsclient.navigation.rememberNavigationState
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
-//    model: FeedPost,
-//    onStatisticItemClickListener: (FeedPost, StatisticItem) -> Unit
 ) {
-    val selectedNavItem by viewModel.selectedNavItem.observeAsState(NavigationItem.Home)
+    val navigationState = rememberNavigationState()
 
     Scaffold(
         modifier = Modifier
@@ -46,6 +55,10 @@ fun MainScreen(
             BottomNavigation(
                 backgroundColor = MaterialTheme.colorScheme.background
             ) {
+                //Стэйт текущего открытого экрана и название отображаемого экрана
+                val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
                 val items = listOf(
                     NavigationItem.Home,
                     NavigationItem.Favourite,
@@ -54,8 +67,10 @@ fun MainScreen(
 
                 items.forEach { item ->
                     BottomNavigationItem(
-                        selected = selectedNavItem == item,
-                        onClick = { viewModel.selectedNavItem(item) },
+                        selected = currentRoute == item.screen.route,
+                        onClick = {
+                            navigationState.navigateTo(item.screen.route)
+                        },
                         icon = {
                             Icon(item.icon, contentDescription = null)
                         },
@@ -69,17 +84,23 @@ fun MainScreen(
             }
         },
     ) { paddingValues ->
-        when (selectedNavItem) {
-            NavigationItem.Home -> HomeScreen(viewModel, paddingValues)
-            NavigationItem.Favourite -> TextCounter("Favourite")
-            NavigationItem.Profile -> Text(text = "Profile")
-        }
+        AppNavGraph(
+            navHostController = navigationState.navHostController,
+            homeScreenContent = {
+                HomeScreen(
+                    viewModel = viewModel,
+                    paddingValues = paddingValues
+                )
+            },
+            favouriteScreenContent = { CommentsScreen(FeedPost(), listOf()) },
+            profileScreenContent = { TextCounter("Profile") }
+        )
     }
 }
 
 @Composable
 fun TextCounter(name: String) {
-    var count by remember {
+    var count by rememberSaveable {
         mutableStateOf(0)
     }
 
