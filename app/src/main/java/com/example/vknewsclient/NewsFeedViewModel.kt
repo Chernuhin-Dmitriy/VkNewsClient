@@ -11,7 +11,10 @@ class NewsFeedViewModel : ViewModel() {
     private val sourceList = mutableListOf<FeedPost>().apply {
         repeat(3) {
             add(
-                FeedPost(id = it)
+                FeedPost(
+                    id = it,
+                    contentText = "Content $it"
+                )
             )
         }
     }

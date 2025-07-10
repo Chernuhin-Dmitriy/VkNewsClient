@@ -52,7 +52,8 @@ fun CommentsScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Comments tor FeedPost Id: ${currentState.feedPost.id}",
+                            text = "Comments tor FeedPost Id: ${feedPost.id} \n ${feedPost.contentText}",  //currentState.feedPost.id
+//                            text = "Comments tor FeedPost Id: ${currentState.feedPost.id}",  //currentState.feedPost.id
                             fontSize = 20.sp
                         )
                     },
