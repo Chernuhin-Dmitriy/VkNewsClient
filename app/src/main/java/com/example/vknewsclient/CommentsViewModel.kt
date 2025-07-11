@@ -15,7 +15,7 @@ class CommentsViewModel(
     val screenState: LiveData<CommentsScreenState> = _screenState
 
     init {
-        loadComments(FeedPost())
+        loadComments(feedPost)
     }
 
     private fun loadComments(feedPost: FeedPost) {

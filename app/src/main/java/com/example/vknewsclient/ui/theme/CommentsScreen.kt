@@ -46,14 +46,15 @@ fun CommentsScreen(
     val screenState = viewModel.screenState.observeAsState(CommentsScreenState.Initial)
     val currentState = screenState.value
 
-    if(currentState is CommentsScreenState.Comments) {
+    if (currentState is CommentsScreenState.Comments) {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Comments tor FeedPost Id: ${feedPost.id} \n ${feedPost.contentText}",  //currentState.feedPost.id
-//                            text = "Comments tor FeedPost Id: ${currentState.feedPost.id}",  //currentState.feedPost.id
+                            text = "Comments tor FeedPost Id: " +
+                                    "${currentState.feedPost.id} \n" +
+                                    currentState.feedPost.contentText,
                             fontSize = 20.sp
                         )
                     },
