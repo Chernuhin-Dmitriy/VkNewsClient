@@ -3,7 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.vkid.manifest.placeholders)
 }
+
+
 
 android {
     namespace = "com.example.vknewsclient"
@@ -31,6 +34,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -41,6 +45,8 @@ android {
 }
 
 dependencies {
+//    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$version")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.compose.runtime.livedata)
@@ -63,4 +69,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+
+    implementation(libs.vkid)
+    implementation(libs.vk.id.support)
 }

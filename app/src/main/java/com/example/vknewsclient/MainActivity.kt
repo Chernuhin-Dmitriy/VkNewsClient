@@ -1,9 +1,10 @@
 package com.example.vknewsclient
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +34,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,7 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.vknewsclient.ui.theme.MainScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vknewsclient.ui.theme.VkNewsClientTheme
 import kotlinx.coroutines.launch
 
@@ -50,168 +55,72 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             VkNewsClientTheme(dynamicColor = false) {
-                MainScreen()
+//                MainScreen()
+//                ActivityResultTest()
+                AuthScreen { }
             }
         }
     }
 }
 
 @Composable
-private fun Example1() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedButton(onClick = {}) {
-            Text(text = "Outline Button")
+private fun AuthScreen(
+    viewModel: AuthViewModel = viewModel(),
+    onAuthSuccess: () -> Unit
+) {
+    val authState by viewModel.authState.collectAsState(AuthState.Initial)
+
+    when(val state = authState) {
+        is AuthState.Initial -> {
+            AuthContent(onAuthClick = { viewModel.authorize() })
         }
-    }
-}
-
-@Composable
-private fun Example2() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        val textValue = remember { mutableStateOf("") }
-
-        TextField(
-            value = "Value",
-            onValueChange = {},
-            label = { Text("Text Header") }
-        )
-    }
-}
-
-@Composable
-private fun Example3() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        val openDialog = remember { mutableStateOf(true) }
-
-        if (openDialog.value) {
-            AlertDialog(
-                onDismissRequest = {
-                    // Dismiss the dialog when the user clicks outside the dialog or on the back
-                    // button. If you want to disable that functionality, simply use an empty
-                    // onCloseRequest.
-                    openDialog.value = false
-                },
-                title = { Text(text = "Are you shure?") },
-                text = {
-                    Text(
-                        "This files are be deleted"
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { openDialog.value = false }) { Text("Yes") }
-                },
-                dismissButton = {
-                    TextButton(onClick = { openDialog.value = false }) { Text("No") }
-                },
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun Example4() {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "TopAppBar title")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            scope.launch { drawerState.open() }
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, contentDescription = null)
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomNavigation(backgroundColor = Color.Yellow) {
-                BottomNavigationItem(
-                    selected = false,
-                    onClick = {},
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    label = { Text(text = "Add") }
-                )
-                BottomNavigationItem(
-                    selected = false,
-                    onClick = {},
-                    icon = { Icon(Icons.Filled.Call, contentDescription = null) },
-                    label = { Text(text = "Call") }
-                )
-                BottomNavigationItem(
-                    selected = true,
-                    onClick = {},
-                    icon = { Icon(Icons.Filled.Email, contentDescription = null) },
-                    label = { Text(text = "E-mail") }
-                )
-            }
-        }
-    ) {
-        Text(
-            modifier = Modifier.padding(it),
-            text = "This is scaffold content"
-        )
-    }
-}
-
-@Preview // Material 3
-@Composable
-fun ModalDrawerSample() {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    ModalDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            Button(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 16.dp),
-                onClick = { scope.launch { drawerState.close() } },
-                content = { Text(text = "Click to Close") }
-            )
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        is AuthState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = if (drawerState.isClosed) ">>>Swipe To Open>>>" else "<<<Swipe To Close<<<")
-                Spacer(modifier = Modifier.height(9.dp))
-                Button(
-                    onClick = { scope.launch { drawerState.open() } },
-                    content = { Text(text = "Open") }
-                )
+                CircularProgressIndicator()
             }
         }
-    )
+        is AuthState.Success -> {
+            LaunchedEffect(Unit) {
+                onAuthSuccess() // Переход на главный экран
+            }
+        }
+        is AuthState.Error -> {
+            AuthContent(
+                onAuthClick = { viewModel.authorize()},
+                errorMessage = state.message
+            )
+        }
+    }
 }
 
+@Composable
+fun AuthContent(
+    onAuthClick: () -> Unit,
+    errorMessage: String? = null
+) {
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        errorMessage?.let {
+            Text(
+                text = it,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
 
-
-
-
-
+        Button(onClick = onAuthClick) {
+            Text("Войти через VK ID")
+        }
+    }
+}
 
 
 
