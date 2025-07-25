@@ -7,21 +7,18 @@ plugins {
 }
 
 
-
 android {
     namespace = "com.example.vknewsclient"
     compileSdk = 35
-
     defaultConfig {
         applicationId = "com.example.vknewsclient"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -45,7 +42,6 @@ android {
 }
 
 dependencies {
-//    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$version")
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)

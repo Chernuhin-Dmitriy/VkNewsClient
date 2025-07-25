@@ -3,6 +3,7 @@ package com.example.vknewsclient
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.vknewsclient.ui.theme.LoginScreen
+import com.example.vknewsclient.ui.theme.MainScreen
 import com.example.vknewsclient.ui.theme.VkNewsClientTheme
+import com.vk.id.VKID
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -55,72 +59,38 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             VkNewsClientTheme(dynamicColor = false) {
-//                MainScreen()
-//                ActivityResultTest()
-                AuthScreen { }
+                val viewModel: AuthViewModel = viewModel()
+                val authState by viewModel.authState.collectAsState(AuthState.Initial)
+
+                when (val state = authState) {
+                    is AuthState.Initial -> {
+                        LoginScreen { viewModel.authorize() }
+                    }
+
+                    is AuthState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    is AuthState.Success -> {
+                        MainScreen() // Переход на главный экран
+                    }
+
+                    is AuthState.Error -> {
+                        LoginScreen(errorMessage = state.message) {
+                            viewModel.authorize()
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-@Composable
-private fun AuthScreen(
-    viewModel: AuthViewModel = viewModel(),
-    onAuthSuccess: () -> Unit
-) {
-    val authState by viewModel.authState.collectAsState(AuthState.Initial)
-
-    when(val state = authState) {
-        is AuthState.Initial -> {
-            AuthContent(onAuthClick = { viewModel.authorize() })
-        }
-        is AuthState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        is AuthState.Success -> {
-            LaunchedEffect(Unit) {
-                onAuthSuccess() // Переход на главный экран
-            }
-        }
-        is AuthState.Error -> {
-            AuthContent(
-                onAuthClick = { viewModel.authorize()},
-                errorMessage = state.message
-            )
-        }
-    }
-}
-
-@Composable
-fun AuthContent(
-    onAuthClick: () -> Unit,
-    errorMessage: String? = null
-) {
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        errorMessage?.let {
-            Text(
-                text = it,
-                color = Color.Red,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
-
-        Button(onClick = onAuthClick) {
-            Text("Войти через VK ID")
-        }
-    }
-}
 
 
 

@@ -1,5 +1,6 @@
 package com.example.vknewsclient
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vk.id.AccessToken
@@ -14,6 +15,14 @@ class AuthViewModel : ViewModel() {
     //State экрана авторизации
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState
+
+    init {
+        _authState.value = if(VKID.instance.accessToken?.token != null) {
+            AuthState.Success(VKID.instance.accessToken?.token!!)
+        } else {
+            AuthState.Initial
+        }
+    }
 
     private val vkAuthCallback = object : VKIDAuthCallback {
         override fun onAuth(accessToken: AccessToken) {
