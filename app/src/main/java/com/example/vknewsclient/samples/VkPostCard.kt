@@ -1,4 +1,4 @@
-package com.example.vknewsclient.ui.theme
+package com.example.vknewsclient.samples
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

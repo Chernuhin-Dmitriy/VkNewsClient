@@ -1,4 +1,4 @@
-package com.example.vknewsclient
+package com.example.vknewsclient.presentation.main
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -7,11 +7,12 @@ import com.vk.id.AccessToken
 import com.vk.id.VKID
 import com.vk.id.VKIDAuthFail
 import com.vk.id.auth.VKIDAuthCallback
+import com.vk.id.storage.InternalVKIDPreferencesStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class MainViewModel : ViewModel() {
     //State экрана авторизации
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState

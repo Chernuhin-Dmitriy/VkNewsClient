@@ -1,4 +1,4 @@
-package com.example.vknewsclient
+package com.example.vknewsclient.presentation.main
 
 import android.app.Application
 import com.vk.id.VKID
