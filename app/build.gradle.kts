@@ -70,4 +70,6 @@ dependencies {
 
     implementation(libs.vkid)
     implementation(libs.vk.id.support)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
 }

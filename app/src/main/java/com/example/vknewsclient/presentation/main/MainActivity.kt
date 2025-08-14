@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             VkNewsClientTheme(dynamicColor = false) {
                 val viewModel: MainViewModel = viewModel()
-                val authState by viewModel.authState.collectAsState(AuthState.Initial)
+                val authState by viewModel.authState.collectAsState()   // Без инициализации
 
                 when (val state = authState) {
                     is AuthState.Initial -> {
