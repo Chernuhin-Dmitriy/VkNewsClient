@@ -1,5 +1,6 @@
 package com.example.vknewsclient.presentation.news
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,7 +9,11 @@ import com.example.vknewsclient.data.mapper.NewsFeedMapper
 import com.example.vknewsclient.data.network.ApiFactory
 import com.example.vknewsclient.domain.FeedPost
 import com.example.vknewsclient.domain.StatisticItem
+import com.vk.id.AccessToken
 import com.vk.id.VKID
+import com.vk.id.refresh.VKIDRefreshTokenCallback
+import com.vk.id.refresh.VKIDRefreshTokenFail
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class NewsFeedViewModel : ViewModel() {
@@ -25,10 +30,46 @@ class NewsFeedViewModel : ViewModel() {
 
     private fun loadRecommendations() {
         viewModelScope.launch {
-            val token = VKID.instance.accessToken?.token ?: return@launch
-            val response = ApiFactory.apiService.loadRecommendations(token)
-            val feedPost = mapper.mapResponseToPosts(response)
-            _screenState.value = NewsFeedScreenState.Posts(posts = feedPost)
+            try {
+                val token = VKID.instance.accessToken?.token ?: return@launch
+                val response = ApiFactory.apiService.loadRecommendations(token)
+                val feedPost = mapper.mapResponseToPosts(response)
+                _screenState.value = NewsFeedScreenState.Posts(posts = feedPost)
+            } catch(e: Exception) {
+                refresh()
+                delay(3000)
+                val token = VKID.instance.accessToken?.token ?: return@launch
+                val response = ApiFactory.apiService.loadRecommendations(token)
+                val feedPost = mapper.mapResponseToPosts(response)
+                _screenState.value = NewsFeedScreenState.Posts(posts = feedPost)
+            }
+        }
+    }
+
+    private val vkRefreshCallback = object : VKIDRefreshTokenCallback {
+        override fun onSuccess(token: AccessToken) {
+            // Использование AT
+        }
+        override fun onFail(fail: VKIDRefreshTokenFail) {
+            when (fail) {
+                is VKIDRefreshTokenFail.FailedApiCall -> fail.description // Использование текста ошибки.
+                is VKIDRefreshTokenFail.FailedOAuthState -> fail.description // Использование текста ошибки.
+                is VKIDRefreshTokenFail.RefreshTokenExpired -> fail.description // Ошибка истечения срока жизни RT. Это уведомление о том, что пользователю нужно перелогиниться.
+                is VKIDRefreshTokenFail.NotAuthenticated -> fail.description // Ошибка отсутствия авторизации у пользователя. Это уведомление о том, что пользователю нужно авторизоваться.
+            }
+        }
+    }
+
+    // Для обновления токена
+    fun refresh() {
+        viewModelScope.launch {
+            try {
+                VKID.instance.refreshToken(
+                    callback = vkRefreshCallback
+                )
+            } catch (e: Exception) {
+                Log.d("auth", "Perhaps token has expired ...")
+            }
         }
     }
 

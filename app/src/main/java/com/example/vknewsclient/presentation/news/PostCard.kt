@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ import com.example.vknewsclient.R
 import com.example.vknewsclient.domain.FeedPost
 import com.example.vknewsclient.domain.StatisticItem
 import com.example.vknewsclient.domain.StatisticType
+import java.util.Locale
 
 @Composable
 fun PostCard(
@@ -81,11 +83,11 @@ fun PostCard(
             Spacer(modifier = Modifier.height(8.dp))
             Statistics(
                 statistics = feedPost.statistics,
-                model = feedPost,
                 onViewClickListener = onViewClickListener,
                 onShareClickListener = onShareClickListener,
                 onCommentClickListener = onCommentClickListener,
-                onLikeClickListener = onLikeClickListener
+                onLikeClickListener = onLikeClickListener,
+                isFavourite = feedPost.isFavourite
             )
         }
     }
@@ -129,11 +131,11 @@ private fun PostHeader(
 @Composable
 private fun Statistics(
     statistics: List<StatisticItem>,
-    model: FeedPost,
     onViewClickListener: (StatisticItem) -> Unit,
     onShareClickListener: (StatisticItem) -> Unit,
     onCommentClickListener: (StatisticItem) -> Unit,
-    onLikeClickListener: (StatisticItem) -> Unit
+    onLikeClickListener: (StatisticItem) -> Unit,
+    isFavourite: Boolean
 ) {
     Row {
         Row(
@@ -143,7 +145,7 @@ private fun Statistics(
             val viewsItem = statistics.getItemByType(StatisticType.VIEWS)
             IconPlusText(
                 image = (R.drawable.ic_eye2),
-                number = viewsItem.count.toString(),
+                number = formatStatisticCount(viewsItem.count),
                 onItemClickListener = {
                     onViewClickListener(viewsItem)
                 }
@@ -160,7 +162,7 @@ private fun Statistics(
 
             IconPlusText(
                 (R.drawable.share2),
-                sharesItem.count.toString(),
+                formatStatisticCount(sharesItem.count),
                 onItemClickListener = {
                     onShareClickListener(sharesItem)
                 }
@@ -168,20 +170,31 @@ private fun Statistics(
             Spacer(modifier = Modifier.weight(1f))
             IconPlusText(
                 R.drawable.comment2,
-                commentsItem.count.toString(),
+                formatStatisticCount(commentsItem.count),
                 onItemClickListener = {
                     onCommentClickListener(commentsItem)
                 }
             )
             Spacer(modifier = Modifier.weight(1f))
             IconPlusText(
-                R.drawable.like2,
-                likesItem.count.toString(),
+                image = if(isFavourite) R.drawable.ic_like_set else R.drawable.like2,
+                number = formatStatisticCount(likesItem.count),
                 onItemClickListener = {
                     onLikeClickListener(likesItem)
-                }
+                },
+                tint = if(isFavourite) Color.Unspecified else MaterialTheme.colorScheme.onSecondary
             )
         }
+    }
+}
+
+private fun formatStatisticCount(count: Int): String {
+    return if(count > 100_000) {
+        String.format("%sK", count/1000)
+    } else if(count > 1000){
+        String.format(Locale.getDefault(),"%.1fK", count/1000f)
+    } else {
+        count.toString()
     }
 }
 
@@ -194,7 +207,8 @@ private fun List<StatisticItem>.getItemByType(type: StatisticType): StatisticIte
 private fun IconPlusText(
     image: Int,
     number: String,
-    onItemClickListener: () -> Unit
+    onItemClickListener: () -> Unit,
+    tint: Color = MaterialTheme.colorScheme.onSecondary
 ) {
     Icon(
         modifier = Modifier
@@ -203,7 +217,7 @@ private fun IconPlusText(
                 onItemClickListener()
             },
         painter = painterResource(image),
-        tint = MaterialTheme.colorScheme.onSecondary,
+        tint = tint,
         contentDescription = null
     )
     Spacer(modifier = Modifier.width(4.dp))
@@ -215,19 +229,3 @@ private fun IconPlusText(
     )
 }
 
-
-//@Preview
-//@Composable
-//private fun PreviewLite() {
-//    VkNewsClientTheme(darkTheme = false, dynamicColor = false) {
-//        PostCard()
-//    }
-//}
-//
-//@Preview
-//@Composable
-//private fun PreviewDark() {
-//    VkNewsClientTheme(darkTheme = true, dynamicColor = false) {
-//        PostCard()
-//    }
-//}

@@ -18,8 +18,6 @@ class MainViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState
 
-
-
     init {
         _authState.value = if(VKID.instance.accessToken?.token != null) {
             AuthState.Success(VKID.instance.accessToken?.token!!)
